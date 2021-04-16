@@ -1,1 +1,2 @@
-# crecimiento_urbano
+# Modelo de Crecimiento Urbano
+![](outputs/demo_CA2D.gif) 
