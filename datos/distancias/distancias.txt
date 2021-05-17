@@ -1,0 +1,57 @@
+
+from shapely.ops import transform
+from functools import partial
+import pyproj
+from osgeo import ogr, osr
+
+G = ox.graph_from_place('Mexico City, Mexico', network_type='drive') 
+
+
+origin_point = (19.384146548212755, -99.17861812275046)
+destination_point = (19.332145730326094, -99.18824793186404)
+origin_node = ox.distance.get_nearest_node(G, origin_point)
+destination_node = ox.distance.get_nearest_node(G, destination_point)
+route = nx.shortest_path(G, origin_node, destination_node, weight='length')
+fig, ax = ox.plot_graph_route(G, route, route_color="y", route_linewidth=6, node_size=0)
+
+def nodes_to_linestring(path):
+    coords_list = [(G.nodes[i]['x'], G.nodes[i]['y']) for i in path ]
+    line = LineString(coords_list)
+    
+    return(line)
+
+route = nodes_to_linestring(route)
+
+
+
+# Calculating length of the route requires projection into UTM system.  
+inSpatialRef = osr.SpatialReference()
+inSpatialRef.ImportFromEPSG(4326)
+outSpatialRef = osr.SpatialReference()
+outSpatialRef.ImportFromEPSG(32614)
+coordTransform = osr.CoordinateTransformation(inSpatialRef, outSpatialRef)
+
+#route.wkt returns wkt of the shapely object. This step was necessary as transformation can be applied 
+#only on an ogr object. Used EPSG 32643 as Bangalore is in 43N UTM grid zone.
+geom = ogr.CreateGeometryFromWkt(route.wkt)
+geom.Transform(coordTransform)
+length = geom.Length()
+
+#Total length to be covered is length along network between the nodes plus the distance from the O,D points to their nearest nodes
+total_length = length + dist_to_network
+#in metres
+
+# Geometry transform function based on pyproj.transform
+project = partial(
+    pyproj.transform,
+    pyproj.Proj('EPSG:4326'),
+    pyproj.Proj('EPSG:32614'))
+
+line2 = transform(project, line1)
+
+
+
+https://stackoverflow.com/questions/58257528/osmnx-shortest-path-for-a-set-of-origins-and-destinations
+
+https://stackoverflow.com/questions/58302826/plotting-a-route-on-a-given-map-on-python-osmnx
+https://towardsdatascience.com/find-and-plot-your-optimal-path-using-plotly-and-networkx-in-python-17e75387b873
