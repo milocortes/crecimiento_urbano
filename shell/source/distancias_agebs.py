@@ -24,20 +24,30 @@ zm_geoms = gpd.read_file("municipios_"+zm_selected+".geojson")
 agebs["centroide"] = agebs["geometry"].centroid
 
 ## Obtenemos la matriz de adjacencia de los vecinos de los agebs
+print("%-------------------------------------------------------------%")
+print("Obtenemos la matriz de adjacencia de los vecinos de los agebs")
+print("%--------------------------------------------------------------%")
+
 adyacencia_dic = layer2net(agebs)
 
 # Instancia de la clase Network()
 agebs_net = Network()
 
 # Agregamos las instancias de cada ageb en el diccionacio de agebs_net
-for ageb in list(adyacencia_dic.keys()):
+print("%-------------------------------------------------------------%")
+print("Agregamos las instancias de cada ageb en el diccionacio de agebs_net")
+print("%--------------------------------------------------------------%")
+for ageb in tqdm(list(adyacencia_dic.keys())):
     poblacion = agebs[agebs["CVEGEO"]==ageb]["POBTOT"].item()
     geometria = agebs[agebs["CVEGEO"]==ageb]["geometry"].item()
     centroide = agebs[agebs["CVEGEO"]==ageb]["centroide"].item()
     agebs_net.agebs[ageb]=Ageb(ageb,poblacion,geometria,centroide)
 
 # Agregamos los vecinos de cada ageb
-for ageb in list(adyacencia_dic.keys()):
+print("%-------------------------------------------------------------%")
+print("Agregamos los vecinos de cada ageb")
+print("%--------------------------------------------------------------%")
+for ageb in tqdm(list(adyacencia_dic.keys())):
     lista_vecinos = list(np.where((adyacencia_dic[ageb]==1))[0])
     ref_vecinos = []
 

@@ -37,13 +37,13 @@ zm_geoms = zm_geoms[zm_geoms["zm"]==zm_selected]
 
 ## Utilizamos el método overlay de geopandas para quedarnos con las agebs de la ZM seleccionada
 zm_geoms = zm_geoms.to_crs("EPSG:6372")
-agebs_zm = gpd.overlay(zm_geoms[['NOM_MUN','clave','zm','geometry']],agebs,how='intersection')
-agebs_zm["CVEGEO"]= agebs_zm["clave"]+agebs_zm["CVE_LOC"]+agebs_zm["CVE_AGEB"]
+agebs_zm = gpd.overlay(zm_geoms.dissolve("zm")[['NOM_MUN','clave','geometry']],agebs,how='intersection',keep_geom_type = False)
+agebs_zm["CVEGEO"]= agebs_zm['CVE_ENT']+agebs_zm['CVE_MUN']+agebs_zm["CVE_LOC"]+agebs_zm["CVE_AGEB"]
 agebs_zm.plot()
 plt.show()
 
 ## Utilizamos el método overlay de geopandas para quedarnos con las localidades de la ZM seleccionada
-localidades_zm = gpd.overlay(zm_geoms[['NOM_MUN','clave','zm','geometry']],localidades,how='intersection', keep_geom_type = False)
+localidades_zm = gpd.overlay(zm_geoms.dissolve("zm")[['geometry']],localidades,how='intersection', keep_geom_type = False)
 
 ## Descargamos los datos correspondientes a las agebs de los estados de la ZM seleccionada
 print("%-----------------------------------------%")
