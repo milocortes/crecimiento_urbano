@@ -62,7 +62,7 @@ for ageb in tqdm(list(adyacencia_dic.keys())):
 if len(agebs_net.agebs) > 1000:
     trayectoria_agebs_chunks(agebs_net,agebs)
 else:
-    trayectoria_agebs(zm_geoms,agebs_net,agebs)
+    trayectoria_agebs(zm_geoms,agebs_net)
 
 ## Convertimos los resultados a un GeoDataFrame
 print("%----------------------------------------------------------------------------------------%")
