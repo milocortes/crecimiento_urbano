@@ -58,34 +58,11 @@ for ageb in tqdm(list(adyacencia_dic.keys())):
             ref_vecinos.append(agebs_net.agebs[vecino])
         agebs_net.agebs[ageb].vecinos=ref_vecinos
 
-# Obtenemos los límites de la ZM
-xmin,ymin,xmax,ymax = zm_geoms.total_bounds
-
-# Obtenemos la red de carreteras de los límites de la ZM
-print("%----------------------------------------%")
-print("Obteniendo la red de carreteras de la ZM")
-print("(Esto puede tardar algunos minutos)")
-print("%----------------------------------------%")
-
-G = ox.graph_from_bbox(ymax, ymin, xmax, xmin, network_type='drive')
-
 # Calculamos la trayectoria del centroide de cada ageb con el centride de su ageb vecino
-print("%----------------------------------------------------------------------------------------%")
-print("Calculamos la trayectoria del centroide de cada ageb con el centride de su ageb vecino")
-print("%----------------------------------------------------------------------------------------%")
-
-agebs_cuenta = 0
-total_agebs = len(agebs_net.agebs)
-
-for key, ageb in agebs_net.agebs.items():
-    agebs_cuenta +=1
-    print("Obteniendo las rutas del ageb {} ({} de {})".format(ageb.cvegeo,agebs_cuenta,total_agebs))
-    if len(ageb.vecinos)>0:
-        for vecino in ageb.vecinos:
-            origen = get_coords(ageb.centroide.to_wkt())
-            destino = get_coords(vecino.centroide.to_wkt())
-            ageb.ruta_vecino[vecino.cvegeo]=shortest_path(G,origen,destino)
-
+if len(agebs_net.agebs) > 1000:
+    trayectoria_agebs_chunks(agebs_net,agebs)
+else:
+    trayectoria_agebs(zm_geoms,agebs_net,agebs)
 
 ## Convertimos los resultados a un GeoDataFrame
 print("%----------------------------------------------------------------------------------------%")
@@ -118,3 +95,21 @@ gdf = gpd.GeoDataFrame(df, geometry='coordinates')
 gdf = gdf.set_crs('EPSG:4326')
 
 gdf.to_file("rutas_"+zm_selected+".geojson", driver='GeoJSON')
+
+## Guardamos en formato csv las distancias de las rutas
+print("%----------------------------------------------------------------------------------------%")
+print("Guardamos en formato csv las distancias de las rutas")
+print("%----------------------------------------------------------------------------------------%")
+gdf_distancias_rutas = gdf.to_crs("EPSG:32614")
+gdf_distancias_rutas['distancia'] = gdf_distancias_rutas["coordinates"].length
+data_distancias = gdf_distancias_rutas[['origen','destino','distancia']]
+data_distancias.to_csv("distancias_"+zm_selected+".csv", index=False)
+## Convertimos los centroides a un GeoDataFrame
+print("%----------------------------------------------------------------------------------------%")
+print("Convertimos los centroides a un GeoDataFrame")
+print("%----------------------------------------------------------------------------------------%")
+
+centroides_zmvm = pd.DataFrame({'CVEGEO': agebs['CVEGEO'],'centroide' : agebs['centroide'].to_wkt()})
+centroides_zmvm["coordinates"]=gpd.GeoSeries.from_wkt(centroides_zmvm['centroide'])
+gdf_centroides_zmvm = gpd.GeoDataFrame(centroides_zmvm, geometry='coordinates')
+gdf_centroides_zmvm.to_file("centroides_"+zm_selected+".geojson", driver='GeoJSON')

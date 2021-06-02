@@ -68,6 +68,72 @@ def layer2net(capa):
 
     return almacena
 
+def trayectoria_agebs(zm_geoms,agebs_net):
+    # Obtenemos los límites de la ZM
+    xmin,ymin,xmax,ymax = zm_geoms.total_bounds
+
+    # Obtenemos la red de carreteras de los límites de la ZM
+    print("%----------------------------------------%")
+    print("Obteniendo la red de carreteras de la ZM")
+    print("(Esto puede tardar algunos minutos)")
+    print("%----------------------------------------%")
+
+    G = ox.graph_from_bbox(ymax, ymin, xmax, xmin, network_type='drive')
+
+    # Calculamos la trayectoria del centroide de cada ageb con el centride de su ageb vecino
+    print("%----------------------------------------------------------------------------------------%")
+    print("Calculamos la trayectoria del centroide de cada ageb con el centride de su ageb vecino")
+    print("%----------------------------------------------------------------------------------------%")
+
+    agebs_cuenta = 0
+    total_agebs = len(agebs_net.agebs)
+
+    for key, ageb in agebs_net.agebs.items():
+        agebs_cuenta +=1
+        print("Obteniendo las rutas del ageb {} ({} de {})".format(ageb.cvegeo,agebs_cuenta,total_agebs))
+        if len(ageb.vecinos)>0:
+            for vecino in ageb.vecinos:
+                origen = get_coords(ageb.centroide.to_wkt())
+                destino = get_coords(vecino.centroide.to_wkt())
+                ageb.ruta_vecino[vecino.cvegeo]=shortest_path(G,origen,destino)
+
+def get_map(xmin,ymin,xmax,ymax ):
+    try:
+        return ox.graph_from_bbox(ymax, ymin, xmax, xmin, network_type='drive')
+    except Exception:
+        ymax = ymax*1.0002
+        ymin = ymin*0.9998
+        xmax = xmax  + (xmax*-0.0002)
+        xmin = xmin*1.0002
+        return get_map(xmin,ymin,xmax,ymax)
+
+def trayectoria_agebs_chunks(agebs_net,agebs):
+    print("%----------------------------------------------------------------------------------------%")
+    print("Calculamos la trayectoria del centroide de cada ageb con el centroide de su ageb vecino")
+    print("%----------------------------------------------------------------------------------------%")
+
+    agebs_cuenta = 0
+    total_agebs = len(agebs_net.agebs)
+
+    for key, ageb in agebs_net.agebs.items():
+        agebs_cuenta +=1
+        print("%-----------------------------------------------------%")
+        print("Obteniendo las rutas del ageb {} ({} de {})".format(ageb.cvegeo,agebs_cuenta,total_agebs))
+        if len(ageb.vecinos)>0:
+            # Obtenemos los límites de los agebs vecinos
+            xmin,ymin,xmax,ymax = agebs[agebs["CVEGEO"].isin([vecino.cvegeo for vecino in ageb.vecinos])].total_bounds
+
+            # Obtenemos la red de carreteras de los límites de la ZM
+            print("Obteniendo la red de carreteras de la ZM")
+            G = get_map(xmin,ymin,xmax,ymax)
+
+            for vecino in ageb.vecinos:
+                origen = get_coords(ageb.centroide.to_wkt())
+                destino = get_coords(vecino.centroide.to_wkt())
+                ageb.ruta_vecino[vecino.cvegeo]=shortest_path(G,origen,destino)
+            print("%---------------------------------------------------%")
+
+
 class Ageb:
     def __init__(self,cvegeo,poblacion,geometria,centroide):
         self.cvegeo = cvegeo
