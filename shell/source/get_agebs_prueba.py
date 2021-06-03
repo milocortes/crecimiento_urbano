@@ -25,13 +25,13 @@ zm_geoms = gpd.read_file("SUN2018.geojson")
 print("%-----------------------------------------%")
 print("Cargamos la geometría de las agebs")
 print("%-----------------------------------------%")
-agebs = gpd.read_file("MGN2020_AGEB.zip")
+agebs = gpd.read_file("MGN2020_AGEB.geojson")
 
 ## Cargamos la geometría de las localidades urbanas
 print("%-----------------------------------------%")
 print("Cargamos la geometría de las localidades urbanas")
 print("%-----------------------------------------%")
-localidades =  gpd.read_file("MGN2020_LocalidadesRurales.zip")
+localidades =  gpd.read_file("MGN2020_LocalidadesRurales.geojson")
 
 ## Nos quedamos con los estados que cubre la ZM seleccionada
 zm_geoms = zm_geoms[zm_geoms["NOM_SUN"]==zm_selected]
@@ -64,7 +64,7 @@ print("Descargamos los datos correspondientes a las agebs de los estados de la Z
 print("%-----------------------------------------%")
 
 ## Nos cambiamos al directorio de descargas
-os.chdir("../downloads")
+os.chdir("../Descargas")
 
 
 url = "https://www.inegi.org.mx/contenidos/programas/ccpv/2020/microdatos/ageb_manzana/RESAGEBURB_"
@@ -104,7 +104,7 @@ columnas_seleccionadas.extend(["CVEGEO", "CVEGEO_MUN", "geometry"])
 agebs_zm_censo = agebs_zm_censo[columnas_seleccionadas]
 localidades=localidades[columnas_seleccionadas]
 
-zm = pd.concatagebs_zm_censo localidades], axis=0)
+zm = pd.concat([agebs_zm_censo, localidades], axis=0)
 
 ## Reproyectamos las geometrías
 zm= zm.to_crs("EPSG:4326")
