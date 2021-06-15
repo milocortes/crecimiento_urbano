@@ -1,0 +1,53 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author{Hermilo Cortés González}
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% Gráfica de tiempos de ejecución (Local)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newgeometry{hmargin=.1in,vmargin=0.1in} 
+\begin{landscape}
+
+\begin{figure}
+ \center
+\begin{subfigure}{.7\textwidth}
+  \centering
+  % Comparación local con 100 actores para distintos cores
+  \includegraphics[width=1\linewidth]{images/time_exe_local_100_actores.eps}  
+  \caption{100 actores}
+  \label{fig:sub-first}
+\end{subfigure}
+\begin{subfigure}{.7\textwidth}
+  \centering
+  % Comparación local con 250 actores para distintos cores
+  \includegraphics[width=1\linewidth]{images/time_exe_local_250_actores.eps}  
+  \caption{250 actores}
+  \label{fig:sub-second}
+\end{subfigure}\\
+\begin{subfigure}{.7\textwidth}
+  \centering
+  % Comparación local con 500 actores para distintos cores
+  \includegraphics[width=1\linewidth]{images/time_exe_local_500_actores.eps}  
+  \caption{500 actores}
+  \label{fig:sub-third}
+\end{subfigure}
+\begin{subfigure}{.7\textwidth}
+  \centering
+  % Comparación local con 1000 actores para distintos cores
+  \includegraphics[width=1\linewidth]{images/time_exe_local_1000_actores.eps}  
+  \caption{1000 actores}
+  \label{fig:sub-fourth}
+\end{subfigure}
+\caption{Comparación del tiempo de ejecución de los frameworks para el cálculo del coeficiente de clusteríng. Matriz 1000 X 1000.}
+\label{fig:tiempoejecucionlocal}
+\end{figure}
+
+\end{landscape}
+\restoregeometry
+\end{document}
