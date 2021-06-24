@@ -1,0 +1,1 @@
+![](delta1_0.4_delta2_0.4_b_50_zmvm.gif) 
